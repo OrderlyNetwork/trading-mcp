@@ -1,0 +1,48 @@
+{
+  "name": "@orderly.network/trading-mcp",
+  "version": "0.1.0",
+  "mcpName": "io.github.OrderlyNetwork/trading-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OrderlyNetwork/trading-mcp.git"
+  },
+  "description": "MCP server for Orderly Network trading, backed by the orderly CLI",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "orderly-trading-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "start": "node dist/index.js",
+    "doctor": "node dist/index.js doctor",
+    "prepublishOnly": "npm run typecheck && npm test"
+  },
+  "keywords": [
+    "orderly",
+    "orderly-network",
+    "mcp",
+    "mcp-server",
+    "trading"
+  ],
+  "author": "Orderly Network",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0"
+  }
+}

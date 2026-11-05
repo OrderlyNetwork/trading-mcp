@@ -1,0 +1,888 @@
+{
+  "name": "orderly",
+  "version": "2.0.1",
+  "description": "Orderly Network CLI",
+  "globalArgs": [
+    {
+      "name": "network",
+      "long": "network",
+      "short": null,
+      "valueName": "network",
+      "required": false,
+      "takesValue": true,
+      "possibleValues": [],
+      "defaultValue": null,
+      "numArgs": null,
+      "help": "Network: mainnet or testnet"
+    },
+    {
+      "name": "csv",
+      "long": "csv",
+      "short": null,
+      "valueName": "CSV",
+      "required": false,
+      "takesValue": false,
+      "possibleValues": ["true", "false"],
+      "defaultValue": null,
+      "numArgs": null,
+      "help": "Output as CSV instead of JSON"
+    }
+  ],
+  "commands": [
+    {
+      "path": "auth-list",
+      "about": "List all stored API keys (public keys only)",
+      "longAbout": null,
+      "mutates": false,
+      "args": [
+        {
+          "name": "ids",
+          "long": "ids",
+          "short": null,
+          "valueName": "IDS",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print only account IDs"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "account-balance",
+      "about": "Get account balance",
+      "longAbout": null,
+      "mutates": false,
+      "args": [
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID (auto-resolves if single account)"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "positions-list",
+      "about": "List open positions",
+      "longAbout": "List open positions.\n\nFor Orderly Predict positions, position_qty > 0 is UP and position_qty < 0 is DOWN.",
+      "mutates": false,
+      "args": [
+        {
+          "name": "product_type",
+          "long": "product-type",
+          "short": null,
+          "valueName": "type",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": ["PERP", "BINARY"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Filter by product type"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID (auto-resolves if single account)"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "order-list",
+      "about": "List orders (defaults to open/active orders)",
+      "longAbout": null,
+      "mutates": false,
+      "args": [
+        {
+          "name": "symbol",
+          "long": "symbol",
+          "short": null,
+          "valueName": "symbol",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Filter by symbol"
+        },
+        {
+          "name": "status",
+          "long": "status",
+          "short": null,
+          "valueName": "status",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": ["NEW", "FILLED", "CANCELLED", "INCOMPLETE", "COMPLETED"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Filter by status"
+        },
+        {
+          "name": "all",
+          "long": "all",
+          "short": null,
+          "valueName": "ALL",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Show all orders"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID (auto-resolves if single account)"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "order-place",
+      "about": "Place a new order",
+      "longAbout": "Place a new perpetual-futures order.",
+      "mutates": true,
+      "args": [
+        {
+          "name": "symbol",
+          "long": null,
+          "short": null,
+          "valueName": "symbol",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "side",
+          "long": null,
+          "short": null,
+          "valueName": "side",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": ["BUY", "SELL"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "type_",
+          "long": null,
+          "short": null,
+          "valueName": "type",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": ["LIMIT", "MARKET", "IOC", "FOK", "POST_ONLY", "ASK", "BID"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Order type (omitted for the short BID/ASK form)"
+        },
+        {
+          "name": "quantity",
+          "long": null,
+          "short": null,
+          "valueName": "quantity",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "price",
+          "long": "price",
+          "short": null,
+          "valueName": "price",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Order price (required for LIMIT, IOC, FOK, POST_ONLY)"
+        },
+        {
+          "name": "client_order_id",
+          "long": "client-order-id",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Custom client order ID"
+        },
+        {
+          "name": "reduce_only",
+          "long": "reduce-only",
+          "short": null,
+          "valueName": "REDUCE_ONLY",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Reduce-only order"
+        },
+        {
+          "name": "dry_run",
+          "long": "dry-run",
+          "short": null,
+          "valueName": "DRY_RUN",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print the request payload without signing or sending it"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID (auto-resolves if single account)"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "order-edit",
+      "about": "Edit a pending order",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "order_id",
+          "long": null,
+          "short": null,
+          "valueName": "order-id",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "price",
+          "long": "price",
+          "short": null,
+          "valueName": "price",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "New order price"
+        },
+        {
+          "name": "dry_run",
+          "long": "dry-run",
+          "short": null,
+          "valueName": "DRY_RUN",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print the request payload"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "order-cancel",
+      "about": "Cancel an order",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "order_id",
+          "long": null,
+          "short": null,
+          "valueName": "order-id",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "symbol",
+          "long": "symbol",
+          "short": null,
+          "valueName": "symbol",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Symbol of the order"
+        },
+        {
+          "name": "dry_run",
+          "long": "dry-run",
+          "short": null,
+          "valueName": "DRY_RUN",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print the request payload"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "order-cancel-all",
+      "about": "Cancel all orders",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "symbol",
+          "long": "symbol",
+          "short": null,
+          "valueName": "symbol",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Filter by symbol"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "positions-close",
+      "about": "Close a position",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "symbol",
+          "long": null,
+          "short": null,
+          "valueName": "symbol",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "quantity",
+          "long": "quantity",
+          "short": null,
+          "valueName": "n",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Partial close quantity"
+        },
+        {
+          "name": "dry_run",
+          "long": "dry-run",
+          "short": null,
+          "valueName": "DRY_RUN",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print the request payload"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "leverage",
+      "about": "Get or set leverage for a symbol",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "symbol",
+          "long": null,
+          "short": null,
+          "valueName": "symbol",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "value",
+          "long": null,
+          "short": null,
+          "valueName": "value",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "dry_run",
+          "long": "dry-run",
+          "short": null,
+          "valueName": "DRY_RUN",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print the request payload"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "market-price",
+      "about": "Get market price",
+      "longAbout": null,
+      "mutates": false,
+      "args": [
+        {
+          "name": "symbol",
+          "long": null,
+          "short": null,
+          "valueName": "symbol",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "market-orderbook",
+      "about": "Get the order book",
+      "longAbout": null,
+      "mutates": false,
+      "args": [
+        {
+          "name": "symbol",
+          "long": null,
+          "short": null,
+          "valueName": "symbol",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "depth",
+          "long": "depth",
+          "short": null,
+          "valueName": "n",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Depth"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "kline",
+      "about": "Get candlestick data",
+      "longAbout": null,
+      "mutates": false,
+      "args": [
+        {
+          "name": "symbol",
+          "long": null,
+          "short": null,
+          "valueName": "symbol",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "type_",
+          "long": null,
+          "short": null,
+          "valueName": "type",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": ["1m", "5m", "15m", "30m", "1h", "4h", "12h", "1d", "1w", "1mon"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "size",
+          "long": "size",
+          "short": null,
+          "valueName": "n",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Number of candles"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "batch-order-place",
+      "about": "Place multiple orders",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "orders",
+          "long": null,
+          "short": null,
+          "valueName": "orders",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "JSON array of orders, or a path to a JSON file"
+        },
+        {
+          "name": "dry_run",
+          "long": "dry-run",
+          "short": null,
+          "valueName": "DRY_RUN",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print the request payload"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "batch-order-cancel",
+      "about": "Cancel multiple orders by IDs",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "order_ids",
+          "long": null,
+          "short": null,
+          "valueName": "order-ids",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": { "min": 1, "max": 1000000 },
+          "help": null
+        },
+        {
+          "name": "dry_run",
+          "long": "dry-run",
+          "short": null,
+          "valueName": "DRY_RUN",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print the request payload"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "predict-buy",
+      "about": "Buy UP or DOWN shares in a Predict round",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "symbol",
+          "long": null,
+          "short": null,
+          "valueName": "symbol",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "direction",
+          "long": null,
+          "short": null,
+          "valueName": "direction",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": ["UP", "DOWN"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "shares",
+          "long": null,
+          "short": null,
+          "valueName": "shares",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "dry_run",
+          "long": "dry-run",
+          "short": null,
+          "valueName": "DRY_RUN",
+          "required": false,
+          "takesValue": false,
+          "possibleValues": ["true", "false"],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Print the request payload"
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "wallet-import",
+      "about": "Import an existing wallet private key",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "private_key",
+          "long": null,
+          "short": null,
+          "valueName": "private-key",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Private key (positional)"
+        },
+        {
+          "name": "private_key_flag",
+          "long": "private-key",
+          "short": null,
+          "valueName": "key",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Private key (flag)"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "auth-export-key",
+      "about": "Export Ed25519 private key (requires interactive TTY)",
+      "longAbout": null,
+      "mutates": false,
+      "args": [
+        {
+          "name": "account_id",
+          "long": null,
+          "short": null,
+          "valueName": "account-id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID (positional)"
+        }
+      ],
+      "subcommands": []
+    },
+    {
+      "path": "withdraw",
+      "about": "Withdraw tokens",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "token",
+          "long": null,
+          "short": null,
+          "valueName": "token",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "amount",
+          "long": "amount",
+          "short": null,
+          "valueName": "amount",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Amount to withdraw"
+        }
+      ],
+      "subcommands": []
+    }
+  ]
+}
