@@ -729,6 +729,39 @@
       "subcommands": []
     },
     {
+      "path": "batch-order-cancel-by-client-id",
+      "about": "Cancel multiple orders by client order IDs",
+      "longAbout": null,
+      "mutates": true,
+      "args": [
+        {
+          "name": "client_order_ids",
+          "long": null,
+          "short": null,
+          "valueName": "client-order-ids",
+          "required": true,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": null
+        },
+        {
+          "name": "account",
+          "long": "account",
+          "short": null,
+          "valueName": "id",
+          "required": false,
+          "takesValue": true,
+          "possibleValues": [],
+          "defaultValue": null,
+          "numArgs": null,
+          "help": "Account ID"
+        }
+      ],
+      "subcommands": []
+    },
+    {
       "path": "predict-buy",
       "about": "Buy UP or DOWN shares in a Predict round",
       "longAbout": null,

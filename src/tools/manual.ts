@@ -9,7 +9,7 @@ import {
   findCommand,
   isBooleanArg,
   isEnumArg,
-  isVariadic,
+  isVariadicArg,
   normalizeCommandName,
 } from '../cli/schema.js';
 import { formatRunResult } from '../output.js';
@@ -117,7 +117,7 @@ function summarizeArg(cmd: SchemaCommand, full: boolean): ArgSummary[] {
       ? 'flag'
       : isEnumArg(arg)
         ? 'enum'
-        : isVariadic(arg)
+        : isVariadicArg(cmd, arg)
           ? 'variadic'
           : 'value';
     const summary: ArgSummary = {

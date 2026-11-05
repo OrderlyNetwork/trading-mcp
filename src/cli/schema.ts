@@ -133,6 +133,21 @@ export function isVariadic(arg: SchemaArg): boolean {
   return (arg.numArgs?.max ?? 1) > 1;
 }
 
+/**
+ * Variadic detection with a fallback for CLI releases before `numArgs` existed
+ * in the schema (v2.0.1 and earlier). These are the only variadic positionals
+ * in the command surface.
+ */
+export function isVariadicArg(cmd: SchemaCommand, arg: SchemaArg): boolean {
+  if (isVariadic(arg)) return true;
+  const param = argParamName(arg);
+  return (
+    (cmd.path === 'batch-order-cancel' && param === 'order_ids') ||
+    (cmd.path === 'batch-order-cancel-by-client-id' &&
+      param === 'client_order_ids')
+  );
+}
+
 export function isEnumArg(arg: SchemaArg): boolean {
   return (
     arg.takesValue &&

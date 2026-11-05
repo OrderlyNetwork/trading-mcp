@@ -6,7 +6,7 @@ import {
   commandUsage,
   isBooleanArg,
   isEnumArg,
-  isVariadic,
+  isVariadicArg,
 } from '../cli/schema.js';
 import { commandsForProfile } from '../policy.js';
 import type { SchemaArg, SchemaCommand } from '../types.js';
@@ -49,7 +49,7 @@ function propertyFor(
     };
   }
 
-  if (isVariadic(arg)) {
+  if (isVariadicArg(cmd, arg)) {
     return {
       type: 'array',
       items: { type: 'string' },

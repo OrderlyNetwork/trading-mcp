@@ -4,7 +4,7 @@ import {
   argParamName,
   isBooleanArg,
   isEnumArg,
-  isVariadic,
+  isVariadicArg,
   positionalArgs,
 } from './cli/schema.js';
 
@@ -233,7 +233,7 @@ export function buildArgv(
       );
       if (failure) return failure.error;
       const strings = values.map((item) => item as string);
-      if (isVariadic(arg)) {
+      if (isVariadicArg(cmd, arg)) {
         if (arg.long !== null) {
           flags.push(`--${arg.long}=${strings.join(',')}`);
         } else {

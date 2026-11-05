@@ -135,6 +135,23 @@ describe('buildArgv', () => {
     });
   });
 
+  it('expands variadic positionals when numArgs is absent (CLI 2.0.1 fallback)', () => {
+    const result = buildArgv(
+      command('batch-order-cancel-by-client-id'),
+      { client_order_ids: ['a', 'b'] },
+      testnet
+    );
+    expect(result).toEqual({
+      argv: [
+        'batch-order-cancel-by-client-id',
+        '--network=testnet',
+        '--',
+        'a',
+        'b',
+      ],
+    });
+  });
+
   it('honours a per-call network override', () => {
     const result = buildArgv(
       command('market-price'),
