@@ -84,8 +84,14 @@ export const RUN_TOOL: Tool = {
       args: {
         type: 'object',
         description:
-          'Structured arguments keyed by the names returned by orderly_commands, e.g. {"symbol":"PERP_ETH_USDC","side":"BUY"}.',
+          'Structured arguments keyed by the names returned by orderly_commands, e.g. {"symbol":"PERP_ETH_USDC","side":"BUY"}. Put network here, or use the top-level network field.',
         additionalProperties: true,
+      },
+      network: {
+        type: 'string',
+        enum: ['mainnet', 'testnet'],
+        description:
+          'Network override for this call. Takes precedence over args.network. Defaults to ORDERLY_MCP_NETWORK, then the CLI config.',
       },
     },
     required: ['command'],
@@ -289,5 +295,9 @@ export async function handleRun(
     return textResult('Argument "args" must be an object.', true);
   }
 
-  return executeCommand(command, args as Record<string, unknown>, deps);
+  const merged = { ...(args as Record<string, unknown>) };
+  if (input.network !== undefined) {
+    merged.network = input.network;
+  }
+  return executeCommand(command, merged, deps);
 }

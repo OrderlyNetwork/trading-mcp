@@ -106,6 +106,42 @@ describe('MCP protocol', () => {
     });
   });
 
+  it('honours the top-level network override on orderly_run', async () => {
+    await withClient(
+      { ORDERLY_MCP_NETWORK: 'mainnet' },
+      async (client) => {
+        const result = await client.callTool({
+          name: 'orderly_run',
+          arguments: {
+            command: 'auth-list',
+            args: {},
+            network: 'testnet',
+          },
+        });
+        const payload = JSON.parse(textOf(result)) as { argv: string[] };
+        expect(payload.argv).toContain('--network=testnet');
+        expect(payload.argv).not.toContain('--network=mainnet');
+      }
+    );
+  });
+
+  it('honours args.network on orderly_run', async () => {
+    await withClient(
+      { ORDERLY_MCP_NETWORK: 'mainnet' },
+      async (client) => {
+        const result = await client.callTool({
+          name: 'orderly_run',
+          arguments: {
+            command: 'auth-list',
+            args: { network: 'testnet' },
+          },
+        });
+        const payload = JSON.parse(textOf(result)) as { argv: string[] };
+        expect(payload.argv).toContain('--network=testnet');
+      }
+    );
+  });
+
   it('blocks secret commands through the escape hatch', async () => {
     await withClient({}, async (client) => {
       const result = await client.callTool({
