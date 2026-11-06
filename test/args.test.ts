@@ -129,6 +129,47 @@ describe('buildArgv', () => {
     );
   });
 
+  it('rejects missing and non-positive numeric values before spawning', () => {
+    const negative = buildArgv(
+      command('order-place'),
+      {
+        symbol: 'PERP_ETH_USDC',
+        side: 'BUY',
+        type: 'LIMIT',
+        quantity: -1,
+        price: 2100,
+      },
+      testnet
+    );
+    expect('error' in negative && negative.error).toContain(
+      'must be a positive number'
+    );
+
+    const zeroPrice = buildArgv(
+      command('order-place'),
+      {
+        symbol: 'PERP_ETH_USDC',
+        side: 'BUY',
+        type: 'LIMIT',
+        quantity: 0.01,
+        price: 0,
+      },
+      testnet
+    );
+    expect('error' in zeroPrice && zeroPrice.error).toContain(
+      'must be a positive number'
+    );
+
+    const oversizedKline = buildArgv(
+      command('kline'),
+      { symbol: 'PERP_ETH_USDC', type: '1m', size: 5000 },
+      testnet
+    );
+    expect('error' in oversizedKline && oversizedKline.error).toContain(
+      'must be <= 1000'
+    );
+  });
+
   it('requires quantity even though the manifest marks it optional', () => {
     const result = buildArgv(
       command('order-place'),

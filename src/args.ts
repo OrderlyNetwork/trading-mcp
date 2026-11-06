@@ -87,6 +87,42 @@ export function enumValuesFor(
   return ENUM_OVERRIDES[cmdPath]?.[argParamName(arg)] ?? arg.possibleValues;
 }
 
+/** Parameters that must be strictly positive when numeric. */
+const POSITIVE_PARAMS: ReadonlySet<string> = new Set([
+  'quantity',
+  'price',
+  'value',
+  'depth',
+  'size',
+  'shares',
+  'amount',
+  'trigger_price',
+  'callback_rate',
+  'tp_trigger_price',
+  'tp_price',
+  'sl_trigger_price',
+  'sl_price',
+  'chain_id',
+]);
+
+function numericError(param: string, value: unknown): string | null {
+  if (!POSITIVE_PARAMS.has(param)) return null;
+  let number: number;
+  if (typeof value === 'number') number = value;
+  else if (typeof value === 'string' && value.trim() !== '') number = Number(value);
+  else return null;
+  if (!Number.isFinite(number)) return null;
+  if (number <= 0) {
+    return `Argument "${param}" must be a positive number (got ${JSON.stringify(
+      value
+    )}).`;
+  }
+  if (param === 'size' && number > 1000) {
+    return `Argument "size" must be <= 1000 (got ${number}).`;
+  }
+  return null;
+}
+
 function coerceScalar(
   value: unknown,
   binding: Binding,
@@ -97,6 +133,8 @@ function coerceScalar(
     if (!Number.isFinite(value)) {
       return { error: `Argument "${binding.param}" must be a finite number.` };
     }
+    const range = numericError(binding.param, value);
+    if (range) return { error: range };
     return String(value);
   }
   if (typeof value === 'string') {
@@ -115,6 +153,8 @@ function coerceScalar(
       }
       return candidate;
     }
+    const range = numericError(binding.param, value);
+    if (range) return { error: range };
     return value;
   }
   if (typeof value === 'boolean') return value ? 'true' : 'false';
