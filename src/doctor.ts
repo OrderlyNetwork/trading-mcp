@@ -50,6 +50,7 @@ export function buildDiscoveryReport(
   );
   lines.push(`Timeout:        ${config.timeoutMs}ms`);
   lines.push(`Output cap:     ${config.maxOutputChars} chars`);
+  lines.push(`Account:        ${config.account ?? '(auto)'}`);
   return lines.join('\n');
 }
 
@@ -57,24 +58,40 @@ async function accountSummary(
   bin: string,
   network: string,
   config: ServerConfig
-): Promise<string> {
+): Promise<{ summary: string; ids: string[] }> {
   const result = await runOrderly(
     bin,
     ['auth-list', '--network', network],
     config
   );
   if (!result.ok) {
-    return result.error
-      ? `unavailable (${result.error})`
-      : `error (exit ${result.exitCode})`;
+    return {
+      summary: result.error
+        ? `unavailable (${result.error})`
+        : `error (exit ${result.exitCode})`,
+      ids: [],
+    };
   }
   try {
     const parsed: unknown = JSON.parse(result.stdout);
-    if (Array.isArray(parsed)) return `${parsed.length} account(s)`;
-    return 'unexpected JSON shape';
+    if (Array.isArray(parsed)) {
+      return {
+        summary: `${parsed.length} account(s)`,
+        ids: parsed
+          .map((entry) =>
+            typeof entry === 'object' && entry !== null
+              ? (entry as { accountId?: unknown }).accountId
+              : undefined
+          )
+          .filter((id): id is string => typeof id === 'string'),
+      };
+    }
+    return { summary: 'unexpected JSON shape', ids: [] };
   } catch {
-    if (result.stdout.includes('No keys stored')) return '0 accounts';
-    return 'non-JSON output';
+    if (result.stdout.includes('No keys stored')) {
+      return { summary: '0 accounts', ids: [] };
+    }
+    return { summary: 'non-JSON output', ids: [] };
   }
 }
 
@@ -97,12 +114,18 @@ export async function runDoctor(): Promise<number> {
 
   process.stdout.write('\nAccounts:\n');
   for (const network of ['testnet', 'mainnet']) {
-    const summary = await accountSummary(
+    const { summary, ids } = await accountSummary(
       discovery.location.bin,
       network,
       config
     );
     process.stdout.write(`  ${network}: ${summary}\n`);
+    for (const id of ids) process.stdout.write(`    ${id}\n`);
+    if (ids.length > 1 && !config.account) {
+      process.stdout.write(
+        '    multiple accounts: pass account=<id> or set ORDERLY_MCP_ACCOUNT\n'
+      );
+    }
   }
 
   process.stdout.write('\nMCP client config:\n');

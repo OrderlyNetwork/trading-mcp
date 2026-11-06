@@ -24,6 +24,11 @@ if (mode === 'sleep') {
   process.exit(Number(process.env.FAKE_EXIT ?? 4));
 } else if (mode === 'non-json') {
   process.stdout.write('No keys stored. Run `orderly wallet-add-key` to get started.\n');
+} else if (mode === 'multiple-accounts') {
+  process.stderr.write(
+    'Multiple accounts found. Specify --account in non-interactive mode. Available accounts: 0xabc (EVM)\n'
+  );
+  process.exit(2);
 } else if (mode === 'success-false') {
   process.stdout.write(
     `${JSON.stringify({ success: false, data: { reason: 'nope' } })}\n`

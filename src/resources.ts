@@ -211,6 +211,7 @@ export async function readResource(
                 profile: ctx.config.profile,
                 readOnly: ctx.config.readOnly,
                 allowMainnet: ctx.config.allowMainnet,
+                account: ctx.config.account,
                 network: {
                   override: ctx.config.network,
                   cliDefault: readCliDefaultNetwork(),

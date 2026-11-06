@@ -6,6 +6,7 @@ export interface ServerConfig {
   profile: Profile;
   readOnly: boolean;
   network: NetworkName | null;
+  account: string | null;
   allowMainnet: boolean;
   timeoutMs: number;
   maxOutputChars: number;
@@ -50,10 +51,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     );
   }
 
+  const rawAccount = (env.ORDERLY_MCP_ACCOUNT ?? '').trim();
+
   return {
     profile: rawProfile as Profile,
     readOnly: truthy(env.ORDERLY_MCP_READ_ONLY),
     network: rawNetwork ? (rawNetwork as NetworkName) : null,
+    account: rawAccount.length > 0 ? rawAccount : null,
     allowMainnet: truthy(env.ORDERLY_MCP_ALLOW_MAINNET, true),
     timeoutMs: positiveInt(env.ORDERLY_MCP_TIMEOUT_MS, 30_000, 1_000, 'ORDERLY_MCP_TIMEOUT_MS'),
     maxOutputChars: positiveInt(

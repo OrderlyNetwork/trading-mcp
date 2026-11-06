@@ -288,6 +288,14 @@ export async function executeCommand(
   }
   const network = resolveNetwork(deps.config, requestedNetwork);
 
+  const effective = { ...input };
+  if (effective.account === undefined && deps.config.account) {
+    const hasAccount = command.args.some(
+      (arg) => argParamName(arg) === 'account'
+    );
+    if (hasAccount) effective.account = deps.config.account;
+  }
+
   if (command.mutates && network === 'mainnet' && !deps.config.allowMainnet) {
     return textResult(
       'Mainnet mutations are disabled (ORDERLY_MCP_ALLOW_MAINNET=0). Pass network="testnet" or enable mainnet in the server configuration.',
@@ -295,7 +303,7 @@ export async function executeCommand(
     );
   }
 
-  const built = buildArgv(command, input, { network });
+  const built = buildArgv(command, effective, { network });
   if ('error' in built) {
     return textResult(built.error, true);
   }
@@ -331,6 +339,10 @@ export async function handleLeverageGet(
   if (input.account !== undefined && typeof input.account !== 'string') {
     return textResult('Argument "account" must be a string.', true);
   }
+  const account =
+    typeof input.account === 'string' && input.account.length > 0
+      ? input.account
+      : deps.config.account ?? undefined;
 
   const requestedNetwork = normalizeRequestedNetwork(input.network);
   if (requestedNetwork && typeof requestedNetwork === 'object') {
@@ -343,8 +355,8 @@ export async function handleLeverageGet(
   }
 
   const argv = ['leverage', `--network=${network}`];
-  if (typeof input.account === 'string' && input.account.length > 0) {
-    argv.push(`--account=${input.account}`);
+  if (account) {
+    argv.push(`--account=${account}`);
   }
   argv.push('--', symbol);
 

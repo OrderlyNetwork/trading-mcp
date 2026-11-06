@@ -7,6 +7,7 @@ const config: ServerConfig = {
   profile: 'core',
   readOnly: false,
   network: null,
+  account: null,
   allowMainnet: true,
   timeoutMs: 30_000,
   maxOutputChars: 65_536,
@@ -80,6 +81,20 @@ describe('formatRunResult', () => {
     );
     expect(result.isError).toBe(true);
     expect(text(result)).toContain('The API rejected the request');
+    expect(text(result)).not.toContain('Invalid arguments');
+  });
+
+  it('does not label multiple accounts as invalid arguments', () => {
+    const result = formatRunResult(
+      run({
+        exitCode: 2,
+        stderr:
+          'Multiple accounts found. Specify --account in non-interactive mode.',
+      }),
+      config
+    );
+    expect(result.isError).toBe(true);
+    expect(text(result)).toContain('ORDERLY_MCP_ACCOUNT');
     expect(text(result)).not.toContain('Invalid arguments');
   });
 

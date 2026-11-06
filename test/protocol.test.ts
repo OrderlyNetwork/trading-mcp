@@ -100,6 +100,29 @@ describe('MCP protocol', () => {
     });
   });
 
+  it('injects ORDERLY_MCP_ACCOUNT when account is omitted', async () => {
+    await withClient({ ORDERLY_MCP_ACCOUNT: '0xabc' }, async (client) => {
+      const result = await client.callTool({
+        name: 'account_balance',
+        arguments: {},
+      });
+      const payload = JSON.parse(textOf(result)) as { argv: string[] };
+      expect(payload.argv).toContain('--account=0xabc');
+    });
+  });
+
+  it('explains how to fix multiple accounts', async () => {
+    await withClient({ FAKE_MODE: 'multiple-accounts' }, async (client) => {
+      const result = await client.callTool({
+        name: 'account_balance',
+        arguments: {},
+      });
+      expect(result.isError).toBe(true);
+      expect(textOf(result)).toContain('ORDERLY_MCP_ACCOUNT');
+      expect(textOf(result)).toContain('orderly://accounts');
+    });
+  });
+
   it('returns actionable validation errors without spawning', async () => {
     await withClient({}, async (client) => {
       const result = await client.callTool({

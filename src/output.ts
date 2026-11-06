@@ -3,6 +3,9 @@ import type { RunResult } from './cli/run.js';
 import { textResult, type ToolResult } from './types.js';
 
 function hintForExit(code: number, detail: string): string {
+  if (detail.toLowerCase().includes('multiple accounts found')) {
+    return 'Multiple accounts found. Pass account=<id> or set ORDERLY_MCP_ACCOUNT. See orderly://accounts for the full list.';
+  }
   const apiError = /^(API Error|Error:)/i.test(detail);
   switch (code) {
     case 2:
