@@ -16,7 +16,8 @@ node dist/index.js schema
 ```
 
 `ORDERLY_BIN=/path/to/orderly` overrides CLI discovery. The legacy Node CLI
-(v1.0.0) and v2.0.0 do not have `orderly schema`; the minimum is v2.0.1.
+(v1.0.0) and v2.0.0 do not have `orderly schema`; the minimum is v2.0.1, and
+v2.1.0 is recommended (Predict, `faucet-account`, `longAbout`/`numArgs`).
 
 ## Architecture
 
@@ -96,10 +97,21 @@ are present, and bump `MIN_CLI_VERSION` in `cli/locate.ts` only if required.
 
 - Bump `package.json` and all versions in `server.json` together; the registry
   workflow fails on mismatch.
-- Tag `vX.Y.Z` and push. `release.yaml` verifies (typecheck/test/build) and
-  publishes npm with provenance. `publish-registry.yaml` waits for npm, then
-  runs `mcp-publisher publish` with GitHub OIDC.
+- Tag `vX.Y.Z` and push. `ci.yaml` runs on pushes/PRs, `release.yaml` verifies
+  (typecheck/test/build/pack) and publishes npm with provenance, and
+  `publish-registry.yaml` validates `server.json`, waits for npm, then runs
+  `mcp-publisher publish` with GitHub OIDC.
 - Requires the `NPM_TOKEN` repository secret. No Docker image: stdio only.
+
+## CLI dependency
+
+CLI **v2.1.0** is released (80 commands: Predict, `faucet-account`, plus the
+`longAbout`/`numArgs` schema fields). The MCP requires v2.0.1 minimum and falls
+back cleanly on it: no Predict tools, no `faucet-account`, shorter descriptions,
+and the hardcoded variadic fallback. `MIN_CLI_VERSION` is in `cli/locate.ts`.
+
+The local CLI HEAD is the tagged v2.1.0 release commit; no CLI work is pending
+for the MCP.
 
 ## Tests
 

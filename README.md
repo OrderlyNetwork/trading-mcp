@@ -15,8 +15,13 @@ MCP client ⇄ stdio ⇄ orderly-trading-mcp ⇄ execFile ⇄ orderly CLI ⇄ Or
 ## Requirements
 
 - Node.js >= 20
-- `orderly` CLI **v2.0.1+** (v2.1.0+ recommended; it adds richer command
-  metadata to `orderly schema`)
+- `orderly` CLI **v2.1.0+** recommended (v2.0.1 still works)
+  - v2.1.0 adds the Orderly Predict commands, `faucet-account`, and the
+    `longAbout`/`numArgs` schema fields used for richer descriptions and
+    variadic arguments.
+  - On v2.0.1 the MCP falls back cleanly: the `predict` profile has no predict
+    tools, `faucet-account` is absent (use `faucet_usdc`), descriptions are
+    shorter, and variadic arguments use a hardcoded fallback.
 - A wallet/API key already set up in the CLI (`orderly auth-list` shows them)
 
 ## Install
@@ -78,7 +83,11 @@ finds `orderly`.
     "orderly-trading": {
       "type": "local",
       "command": ["npx", "-y", "@orderly.network/trading-mcp"],
-      "environment": { "ORDERLY_BIN": "/Users/you/.local/bin/orderly" },
+      "environment": {
+        "ORDERLY_BIN": "/Users/you/.local/bin/orderly",
+        "ORDERLY_MCP_TIMEOUT_MS": "180000"
+      },
+      "timeout": 190000,
       "enabled": true
     }
   }
@@ -138,10 +147,10 @@ Profiles add dedicated tools for domains:
 | `ORDERLY_MCP_PROFILE` | Tools |
 | --- | --- |
 | `core` (default) | 14 |
-| `predict` | core + `predict_rounds`, `predict_orderbook`, `predict_buy`, `predict_sell`, `predict_close` |
+| `predict` | core + `predict_rounds`, `predict_orderbook`, `predict_buy`, `predict_sell`, `predict_close` (requires CLI v2.1.0+) |
 | `algo` | core + `algo_order_place`, `algo_order_cancel`, `algo_order_list` |
 | `all` | every read command + every allowed trading mutation (~66) |
-| `full` | `all` + `withdraw`, `faucet_usdc`, `faucet_account` |
+| `full` | `all` + `withdraw`, `faucet_usdc`, `faucet_account` (`faucet_account` requires CLI v2.1.0+) |
 
 ## Safety model
 
@@ -220,10 +229,14 @@ upgrading the CLI or changing `ORDERLY_MCP_PROFILE` / `ORDERLY_BIN`.
    git push origin v0.2.0
    ```
 
-3. `.github/workflows/release.yaml` runs typecheck, tests and build, then
+3. `.github/workflows/release.yaml` runs typecheck, tests, build and pack, then
    publishes to npm with provenance (`NPM_TOKEN` secret required).
-4. `.github/workflows/publish-registry.yaml` waits for the npm version to appear,
-   then publishes `server.json` to the MCP registry with GitHub OIDC.
+4. `.github/workflows/publish-registry.yaml` validates `server.json`, waits for
+   the npm version to appear, then publishes it to the MCP registry with GitHub
+   OIDC.
+
+The MCP release is independent of CLI releases. CLI v2.1.0 is released and
+recommended; v2.0.1 still works with fallbacks.
 
 There is no Docker image: this server is stdio-only, unlike the read-only MCP.
 

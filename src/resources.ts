@@ -48,7 +48,7 @@ OS keychain; the MCP process never sees them and never signs anything itself.
 
 ## Setup (outside the MCP)
 
-1. Install the CLI (v2.0.1+):
+1. Install the CLI (v2.1.0 recommended; v2.0.1 works with fallbacks):
 
    \`\`\`sh
    curl -fsSL https://orderly.network/cli.sh | sh
@@ -104,6 +104,8 @@ Examples of commands reached this way: \`algo_order_place\`, \`order_get\`,
 \`faucet_account\` (full profile) credits the Orderly account directly and can
 wait for the balance. It can take up to 120 seconds, so raise
 \`ORDERLY_MCP_TIMEOUT_MS\` (for example to \`180000\`) before using \`--wait\`.
+\`faucet_account\` requires CLI v2.1.0+; on v2.0.1 use \`faucet_usdc\` with the
+wallet address instead.
 
 ## Exit codes
 

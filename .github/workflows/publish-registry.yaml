@@ -29,6 +29,13 @@ jobs:
             }
             console.log("publishing", pkg.version);
           '
+      - name: Install mcp-publisher
+        run: |
+          set -euo pipefail
+          curl -sSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher version
+      - name: Validate server.json
+        run: ./mcp-publisher validate
       - name: Wait for npm package version
         run: |
           set -euo pipefail
@@ -42,11 +49,6 @@ jobs:
           done
           echo "npm does not have ${VERSION} after 5 minutes" >&2
           exit 1
-      - name: Install mcp-publisher
-        run: |
-          set -euo pipefail
-          curl -sSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
-          ./mcp-publisher version
       - name: Authenticate with GitHub OIDC
         run: ./mcp-publisher login github-oidc
       - name: Publish to MCP registry
