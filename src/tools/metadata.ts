@@ -47,7 +47,7 @@ export const TOOL_METADATA: Record<string, ToolMetadata> = {
   'order-place': {
     title: 'Place a perpetual order',
     description:
-      'Place a perpetual-futures order. ALWAYS call with dry_run=true first to preview the exact request, then repeat with dry_run=false to execute. symbol must be uppercase (e.g. PERP_ETH_USDC). type is LIMIT, MARKET, IOC, FOK or POST_ONLY and is required for BUY/SELL orders. price is required for LIMIT, IOC, FOK and POST_ONLY. Short form: side=BID (market buy) or ASK (market sell), with no type or price. For Orderly Predict rounds use predict_buy/predict_sell instead. Set client_order_id to make retries idempotent.',
+      'Place a perpetual-futures order. ALWAYS call with dry_run=true first to preview the exact request, then repeat with dry_run=false to execute. symbol must be uppercase (e.g. PERP_ETH_USDC). type is LIMIT, MARKET, IOC, FOK or POST_ONLY and is required for BUY/SELL orders. price is required for LIMIT, IOC, FOK and POST_ONLY. Short form: side=BID (market buy) or ASK (market sell), with no type or price. For Orderly Predict rounds use predict_buy/predict_sell instead. Set client_order_id to make retries idempotent. Returns the order object, including order_id.',
     required: ['symbol', 'side', 'quantity'],
   },
   'order-cancel': {

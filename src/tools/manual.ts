@@ -83,7 +83,7 @@ export const RUN_TOOL: Tool = {
   name: 'orderly_run',
   title: 'Run an Orderly CLI command',
   description:
-    'Run any Orderly CLI command that is not exposed as a dedicated tool, with structured arguments. Call orderly_commands first to get exact argument names, enums and required flags. Examples: algo_order_place, order_edit, order_get, trades, funding_rates, symbols, predict_rounds. Mutating commands execute immediately unless they support dry_run and it is set to true — always preview first. Key, wallet and auth management commands are never available. Pass network to override the default.',
+    'Run an allowed Orderly CLI command with structured arguments. Prefer a dedicated tool when one exists; use this for commands that do not have one. Call orderly_commands first to get exact argument names, enums and required flags. Examples: algo_order_place, order_edit, order_get, trades, funding_rates, symbols, predict_rounds. Mutating commands execute immediately unless they support dry_run and it is set to true — always preview first. Key, wallet and auth management commands (create/import/export/logout) are never available. Pass network to override the default.',
   inputSchema: {
     type: 'object',
     properties: {
