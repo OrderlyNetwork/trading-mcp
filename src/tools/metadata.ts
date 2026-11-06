@@ -60,6 +60,26 @@ export const TOOL_METADATA: Record<string, ToolMetadata> = {
     description:
       'Cancel every open order, optionally limited to one symbol. This is destructive and has no dry-run; prefer order_cancel for a single order unless the user explicitly asks to cancel all.',
   },
+  'batch-order-place': {
+    title: 'Place a batch of orders',
+    description:
+      'Place multiple perpetual-futures orders in one call. Returns {"rows":[...]} with a per-order success flag and order_id or error_message. The MCP reports a partial failure as an error; inspect the rows for which orders were accepted.',
+  },
+  'batch-order-cancel': {
+    title: 'Cancel a batch of orders',
+    description:
+      'Cancel multiple orders by ID in one call. Returns per-order result rows; the MCP reports a partial failure as an error.',
+  },
+  'algo-order-place': {
+    title: 'Place an algo order',
+    description:
+      'Place a STOP, TP_SL, POSITIONAL_TP_SL, TRAILING_STOP or BRACKET order. Returns {"rows":[{"order_id":...}]}. Use algo_order_list to inspect active algo orders.',
+  },
+  'broker-status': {
+    title: 'Broker status',
+    description:
+      'Read DEX/broker registration status for an EVM address. Requires CLI v2.1.1 or newer for DEX API authentication.',
+  },
   'positions-close': {
     title: 'Close a position',
     description:

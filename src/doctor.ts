@@ -41,6 +41,12 @@ export function buildDiscoveryReport(
   lines.push(`Profile:        ${config.profile}`);
   lines.push(`Read-only:      ${config.readOnly ? 'yes' : 'no'}`);
   lines.push(
+    `Strict profile: ${config.strictProfile ? 'yes' : 'no'}`
+  );
+  lines.push(
+    `Unknown reads:  ${config.allowUnknownReads ? 'allowed' : 'blocked'}`
+  );
+  lines.push(
     `Mainnet muts:   ${config.allowMainnet ? 'allowed' : 'blocked'}`
   );
   lines.push(

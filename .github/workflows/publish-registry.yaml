@@ -29,6 +29,16 @@ jobs:
             }
             console.log("publishing", pkg.version);
           '
+      - name: Verify tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p 'require("./package.json").version')
+          if [ "v${VERSION}" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json version $VERSION"
+            exit 1
+          fi
+          echo "Releasing $VERSION"
       - name: Install mcp-publisher
         run: |
           set -euo pipefail

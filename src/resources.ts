@@ -48,7 +48,7 @@ OS keychain; the MCP process never sees them and never signs anything itself.
 
 ## Setup (outside the MCP)
 
-1. Install the CLI (v2.1.0 recommended; v2.0.1 works with fallbacks):
+1. Install the CLI (v2.1.1 recommended; v2.0.1 works with fallbacks):
 
    \`\`\`sh
    curl -fsSL https://orderly.network/cli.sh | sh
@@ -73,16 +73,18 @@ Key and wallet management is intentionally not exposed as MCP tools.
 ## Before every trade
 
 1. \`auth_list\` to pick an account ID (omit it when exactly one account exists).
+   Set \`ORDERLY_MCP_ACCOUNT\` to avoid repeating it.
 2. \`account_balance\` and \`positions_list\` to see the current state.
 3. For any mutating command that supports it, call it with \`dry_run: true\` first,
    show the user the exact request, then repeat with \`dry_run: false\`.
 
 ## Perpetual futures vs Orderly Predict
 
-- \`order_place\`, \`order_edit\`, \`order_cancel\`, \`positions_close\` and \`leverage\`
-  are perpetual-futures commands.
+- \`order_place\`, \`order_edit\`, \`order_cancel\`, \`positions_close\`,
+  \`leverage_get\` and \`leverage_set\` are perpetual-futures tools.
 - Predict round symbols are permanent and per-round. Always read them from
-  \`predict_rounds\` (or \`predict-round\`) and never construct or reuse one.
+  \`predict_rounds\` (or the dedicated \`predict_round\` tool) and never construct
+  or reuse one.
 - Buying DOWN at \`d\` is sent to the UP book as SELL at \`1 - d\`. Use
   \`predict_orderbook\` to read \`down_asks\` / \`down_bids\`.
 - Predict accepts only LIMIT, IOC and POST_ONLY, with isolated margin.
@@ -91,13 +93,18 @@ Key and wallet management is intentionally not exposed as MCP tools.
 
 Use the two meta-tools:
 
-1. \`orderly_commands({ query })\` returns the exact command name, usage,
-   argument names, enums and required flags.
-2. \`orderly_run({ command, args })\` executes it with structured arguments.
+1. \`orderly_commands({ query, offset, limit })\` returns the exact command name,
+   usage, argument names, enums and required flags. Results are paginated.
+2. \`orderly_run({ command, args, network })\` executes it with structured
+   arguments. A top-level \`network\` overrides the server default.
 
 Examples of commands reached this way: \`algo_order_place\`, \`order_get\`,
 \`order_edit\`, \`trades\`, \`funding_rates\`, \`symbols\`, \`fee_tier\`,
-\`positions_history\`, \`predict_orderbook\`.
+\`positions_history\`.
+
+Batch responses include per-item \`success\` flags; the MCP reports a partial
+failure as an error. Output larger than \`ORDERLY_MCP_MAX_OUTPUT\` is rejected
+instead of returned as truncated JSON.
 
 ## Testnet faucet
 
@@ -121,9 +128,14 @@ wallet address instead.
 
 - \`ORDERLY_MCP_READ_ONLY=1\` disables every mutating command.
 - \`ORDERLY_MCP_ALLOW_MAINNET=0\` blocks mainnet mutations.
-- \`ORDERLY_MCP_PROFILE=core|predict|algo|all|full\` controls the tool surface.
-  The escape hatch still reaches every allowed command.
-- Key, wallet, auth and broker management commands are never available.
+- \`ORDERLY_MCP_ACCOUNT\` sets the default account ID.
+- \`ORDERLY_MCP_PROFILE=core|predict|algo|all|full\` controls the dedicated tool
+  surface. The escape hatch still reaches every allowed command unless
+  \`ORDERLY_MCP_STRICT_PROFILE=1\`.
+- \`ORDERLY_MCP_ALLOW_UNKNOWN_READS=1\` exposes read commands that have not been
+  reviewed by the MCP (off by default).
+- Key, wallet and auth management commands (create/import/export/logout) and
+  broker creation are never available.
 `;
 
 export interface ResourceContents {
@@ -211,6 +223,8 @@ export async function readResource(
                 profile: ctx.config.profile,
                 readOnly: ctx.config.readOnly,
                 allowMainnet: ctx.config.allowMainnet,
+                allowUnknownReads: ctx.config.allowUnknownReads,
+                strictProfile: ctx.config.strictProfile,
                 account: ctx.config.account,
                 network: {
                   override: ctx.config.network,
