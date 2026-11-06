@@ -27,6 +27,59 @@ export const SECRET_COMMANDS: ReadonlySet<string> = new Set([
 const INTERNAL_COMMANDS: ReadonlySet<string> = new Set(['schema']);
 
 /**
+ * Read-only commands reviewed for exposure. Read commands are allowlisted too,
+ * so a future CLI release that adds a sensitive read command stays hidden until
+ * it is reviewed. Set ORDERLY_MCP_ALLOW_UNKNOWN_READS=1 to opt out.
+ */
+export const READ_COMMANDS: ReadonlySet<string> = new Set([
+  'account-balance',
+  'account-info',
+  'account-limits',
+  'account-liquidations',
+  'account-statistics',
+  'algo-order-get',
+  'algo-order-list',
+  'algo-order-trades',
+  'asset-history',
+  'auth-list',
+  'auth-show',
+  'broker-status',
+  'chains',
+  'deposit-info',
+  'distribution-history',
+  'fee-tier',
+  'funding-history',
+  'funding-rates',
+  'key-info',
+  'kline',
+  'liquidated-positions',
+  'market-orderbook',
+  'market-price',
+  'market-trades',
+  'notification-inbox',
+  'notification-unread',
+  'open-interest',
+  'order-get',
+  'order-list',
+  'order-trades',
+  'positions-history',
+  'positions-list',
+  'predict-orderbook',
+  'predict-round',
+  'predict-rounds',
+  'price-changes',
+  'referral-info',
+  'settle-pnl-history',
+  'symbols',
+  'system-status',
+  'tokens',
+  'trades',
+  'volume-stats',
+  'wallet-list',
+  'wallet-show',
+]);
+
+/**
  * Mutating commands the MCP is allowed to run. This is an allowlist on purpose:
  * a new mutating CLI command stays invisible until it is reviewed here.
  */
@@ -110,6 +163,15 @@ export function isCommandAllowed(
       allowed: false,
       reason: 'The schema is exposed as the orderly://schema resource.',
     };
+  }
+  if (!command.mutates) {
+    if (!READ_COMMANDS.has(command.path) && !config.allowUnknownReads) {
+      return {
+        allowed: false,
+        reason: `"${command.path}" is a read command that has not been reviewed by the MCP. Set ORDERLY_MCP_ALLOW_UNKNOWN_READS=1 to expose it.`,
+      };
+    }
+    return { allowed: true };
   }
   if (command.mutates) {
     if (config.readOnly) {

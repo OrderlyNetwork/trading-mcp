@@ -9,6 +9,8 @@ const config: ServerConfig = {
   network: null,
   account: null,
   allowMainnet: true,
+  allowUnknownReads: false,
+  strictProfile: false,
   timeoutMs: 30_000,
   maxOutputChars: 65_536,
   debug: false,

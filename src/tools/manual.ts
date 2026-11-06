@@ -14,7 +14,7 @@ import {
 } from '../cli/schema.js';
 import { formatRunResult } from '../output.js';
 import { serializeMutation } from '../mutex.js';
-import { isCommandAllowed, visibleCommands } from '../policy.js';
+import { commandsForProfile, isCommandAllowed, visibleCommands } from '../policy.js';
 import type { CliLocation, SchemaCommand, ToolResult } from '../types.js';
 import { textResult } from '../types.js';
 
@@ -365,6 +365,49 @@ export async function handleLeverageGet(
   return formatRunResult(result, deps.config);
 }
 
+function editDistance(left: string, right: string): number {
+  const rows = left.length + 1;
+  const cols = right.length + 1;
+  const matrix: number[] = Array.from({ length: rows * cols }, () => 0);
+  const at = (row: number, col: number): number => matrix[row * cols + col] ?? 0;
+  for (let row = 0; row < rows; row += 1) matrix[row * cols] = row;
+  for (let col = 0; col < cols; col += 1) matrix[col] = col;
+  for (let row = 1; row < rows; row += 1) {
+    for (let col = 1; col < cols; col += 1) {
+      const cost = left[row - 1] === right[col - 1] ? 0 : 1;
+      matrix[row * cols + col] = Math.min(
+        at(row - 1, col) + 1,
+        at(row, col - 1) + 1,
+        at(row - 1, col - 1) + cost
+      );
+    }
+  }
+  return at(rows - 1, cols - 1);
+}
+
+function suggestCommands(commands: SchemaCommand[], raw: string): string[] {
+  const normalized = normalizeCommandName(raw);
+  const substring = commands
+    .filter(
+      (candidate) =>
+        candidate.path.includes(normalized) ||
+        normalized.includes(candidate.path)
+    )
+    .map((candidate) => candidate.path);
+  if (substring.length > 0) return substring.slice(0, 8);
+
+  const threshold = Math.max(2, Math.floor(normalized.length / 3));
+  return commands
+    .map((candidate) => ({
+      path: candidate.path,
+      distance: editDistance(normalized, normalizeCommandName(candidate.path)),
+    }))
+    .filter((candidate) => candidate.distance <= threshold)
+    .sort((left, right) => left.distance - right.distance)
+    .slice(0, 5)
+    .map((candidate) => candidate.path);
+}
+
 export async function handleRun(
   input: Record<string, unknown>,
   commands: SchemaCommand[],
@@ -377,15 +420,7 @@ export async function handleRun(
 
   const command = findCommand(commands, rawCommand);
   if (!command) {
-    const normalized = normalizeCommandName(rawCommand);
-    const suggestions = commands
-      .filter(
-        (candidate) =>
-          candidate.path.includes(normalized) ||
-          normalized.includes(candidate.path)
-      )
-      .slice(0, 8)
-      .map((candidate) => candidate.path);
+    const suggestions = suggestCommands(commands, rawCommand);
     return textResult(
       `Unknown command "${rawCommand}".${
         suggestions.length > 0
@@ -399,6 +434,18 @@ export async function handleRun(
   const decision = isCommandAllowed(command, deps.config);
   if (!decision.allowed) {
     return textResult(decision.reason ?? 'Command is not available.', true);
+  }
+
+  if (deps.config.strictProfile) {
+    const selected = new Set(
+      commandsForProfile(commands, deps.config).map((entry) => entry.path)
+    );
+    if (!selected.has(command.path)) {
+      return textResult(
+        `"${command.path}" is not part of profile "${deps.config.profile}" (ORDERLY_MCP_STRICT_PROFILE=1). Change the profile or disable strict mode.`,
+        true
+      );
+    }
   }
 
   const args = input.args ?? {};

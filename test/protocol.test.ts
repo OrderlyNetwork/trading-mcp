@@ -185,6 +185,34 @@ describe('MCP protocol', () => {
     );
   });
 
+  it('suggests the closest command for a typo', async () => {
+    await withClient({}, async (client) => {
+      const result = await client.callTool({
+        name: 'orderly_run',
+        arguments: { command: 'order-plce' },
+      });
+      expect(result.isError).toBe(true);
+      expect(textOf(result)).toContain('Did you mean: order-place');
+    });
+  });
+
+  it('enforces strict profiles for the escape hatch', async () => {
+    await withClient(
+      { ORDERLY_MCP_STRICT_PROFILE: '1' },
+      async (client) => {
+        const result = await client.callTool({
+          name: 'orderly_run',
+          arguments: {
+            command: 'order_edit',
+            args: { order_id: '123', price: 3500, dry_run: true },
+          },
+        });
+        expect(result.isError).toBe(true);
+        expect(textOf(result)).toContain('ORDERLY_MCP_STRICT_PROFILE');
+      }
+    );
+  });
+
   it('blocks secret commands through the escape hatch', async () => {
     await withClient({}, async (client) => {
       const result = await client.callTool({

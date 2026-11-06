@@ -8,6 +8,8 @@ export interface ServerConfig {
   network: NetworkName | null;
   account: string | null;
   allowMainnet: boolean;
+  allowUnknownReads: boolean;
+  strictProfile: boolean;
   timeoutMs: number;
   maxOutputChars: number;
   debug: boolean;
@@ -59,6 +61,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     network: rawNetwork ? (rawNetwork as NetworkName) : null,
     account: rawAccount.length > 0 ? rawAccount : null,
     allowMainnet: truthy(env.ORDERLY_MCP_ALLOW_MAINNET, true),
+    allowUnknownReads: truthy(env.ORDERLY_MCP_ALLOW_UNKNOWN_READS),
+    strictProfile: truthy(env.ORDERLY_MCP_STRICT_PROFILE),
     timeoutMs: positiveInt(env.ORDERLY_MCP_TIMEOUT_MS, 30_000, 1_000, 'ORDERLY_MCP_TIMEOUT_MS'),
     maxOutputChars: positiveInt(
       env.ORDERLY_MCP_MAX_OUTPUT,

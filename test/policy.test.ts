@@ -22,6 +22,24 @@ describe('policy', () => {
     );
   });
 
+  it('fails closed for unreviewed read commands', () => {
+    const unreviewed: SchemaCommand = {
+      path: 'wallet-export-seed',
+      about: 'not reviewed',
+      longAbout: null,
+      mutates: false,
+      args: [],
+      subcommands: [],
+    };
+    expect(isCommandAllowed(unreviewed, core).allowed).toBe(false);
+    expect(
+      isCommandAllowed(unreviewed, {
+        ...core,
+        allowUnknownReads: true,
+      }).allowed
+    ).toBe(true);
+  });
+
   it('fails closed for unknown mutating commands', () => {
     const unknown: SchemaCommand = {
       path: 'funds-drain',
