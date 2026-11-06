@@ -73,6 +73,36 @@ describe('policy', () => {
     ).toContain('predict-buy');
   });
 
+  it('includes all six Predict commands in the predict profile', () => {
+    const paths = [
+      'predict-rounds',
+      'predict-round',
+      'predict-orderbook',
+      'predict-buy',
+      'predict-sell',
+      'predict-close',
+    ];
+    const seen = new Set(fixtureSchema.commands.map((cmd) => cmd.path));
+    const extra: SchemaCommand[] = paths
+      .filter((path) => !seen.has(path))
+      .map((path) => ({
+        path,
+        about: path,
+        longAbout: null,
+        mutates: ['predict-buy', 'predict-sell', 'predict-close'].includes(
+          path
+        ),
+        args: [],
+        subcommands: [],
+      }));
+    const predict = { ...core, profile: 'predict' as const };
+    const selected = commandsForProfile(
+      [...fixtureSchema.commands, ...extra],
+      predict
+    ).map((cmd) => cmd.path);
+    for (const path of paths) expect(selected).toContain(path);
+  });
+
   it('allows withdraw only in the full profile', () => {
     const all = { ...core, profile: 'all' as const };
     const full = { ...core, profile: 'full' as const };

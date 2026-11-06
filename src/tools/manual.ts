@@ -45,7 +45,7 @@ export const COMMANDS_TOOL: Tool = {
       query: {
         type: 'string',
         description:
-          'Command name (order-place), keyword (algo, predict, history), or empty to list all available commands.',
+          'Command name (order-place), keyword (algo, predict, history), or empty to list available commands.',
       },
       mutates: {
         type: 'boolean',
@@ -56,6 +56,17 @@ export const COMMANDS_TOOL: Tool = {
         enum: ['summary', 'full'],
         description:
           "summary (default) omits long help; full includes long_about and every argument description.",
+      },
+      offset: {
+        type: 'integer',
+        minimum: 0,
+        description: 'Number of matching commands to skip (default 0).',
+      },
+      limit: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 200,
+        description: 'Maximum commands to return (default 50, max 200).',
       },
     },
     additionalProperties: false,
@@ -191,17 +202,31 @@ export function handleCommands(
     });
   }
 
-  const limited = available.slice(0, 50);
+  const offset =
+    typeof input.offset === 'number'
+      ? Math.max(0, Math.trunc(input.offset))
+      : 0;
+  const limit =
+    typeof input.limit === 'number'
+      ? Math.min(200, Math.max(1, Math.trunc(input.limit)))
+      : 50;
+  const limited = available.slice(offset, offset + limit);
+  const nextOffset =
+    offset + limited.length < available.length
+      ? offset + limited.length
+      : undefined;
   const payload = {
     count: available.length,
-    ...(available.length > limited.length
-      ? { truncated: true, showing: limited.length }
+    offset,
+    showing: limited.length,
+    ...(nextOffset !== undefined
+      ? { truncated: true, next_offset: nextOffset }
       : {}),
     commands: limited.map((cmd) => commandSummary(cmd, detail === 'full')),
     hint:
       available.length === 0
         ? 'No matching command. Omit query to list every command available through the MCP.'
-        : 'Execute with orderly_run({ command, args }). Pass network to override the default. Use a dedicated tool when one exists.',
+        : 'Execute with orderly_run({ command, args }). Use offset/limit to page through results, or query to narrow them. Use a dedicated tool when one exists.',
   };
   return textResult(JSON.stringify(payload, null, 2));
 }

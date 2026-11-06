@@ -334,7 +334,7 @@ export function buildArgv(
 
     if (typeof value === 'object') {
       if (param === 'orders') {
-        const text = JSON.stringify(value);
+        const text = JSON.stringify([value]);
         if (arg.long !== null) flags.push(`--${arg.long}=${text}`);
         else positionals.push(text);
         return null;

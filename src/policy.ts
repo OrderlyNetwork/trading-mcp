@@ -77,6 +77,7 @@ export const CORE_COMMANDS: readonly string[] = [
 
 const PREDICT_COMMANDS: readonly string[] = [
   'predict-rounds',
+  'predict-round',
   'predict-orderbook',
   'predict-buy',
   'predict-sell',

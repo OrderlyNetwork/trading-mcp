@@ -249,6 +249,20 @@ describe('buildArgv', () => {
         '[{"symbol":"PERP_ETH_USDC"}]',
       ],
     });
+
+    const single = buildArgv(
+      command('batch-order-place'),
+      { orders: { symbol: 'PERP_ETH_USDC' } },
+      testnet
+    );
+    expect(single).toEqual({
+      argv: [
+        'batch-order-place',
+        '--network=testnet',
+        '--',
+        '[{"symbol":"PERP_ETH_USDC"}]',
+      ],
+    });
   });
 
   it('expands variadic positionals when numArgs is absent (CLI 2.0.1 fallback)', () => {

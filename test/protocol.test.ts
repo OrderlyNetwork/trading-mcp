@@ -170,6 +170,29 @@ describe('MCP protocol', () => {
       expect(payload.command.args.map((arg) => arg.name)).toContain('dry_run');
       const side = payload.command.args.find((arg) => arg.name === 'side');
       expect(side?.possibleValues).toContain('BID');
+      const type = payload.command.args.find((arg) => arg.name === 'type');
+      expect(type?.possibleValues).not.toContain('BID');
+    });
+  });
+
+  it('paginates the command list', async () => {
+    await withClient({}, async (client) => {
+      const result = await client.callTool({
+        name: 'orderly_commands',
+        arguments: { offset: 5, limit: 5 },
+      });
+      const payload = JSON.parse(textOf(result)) as {
+        count: number;
+        offset: number;
+        showing: number;
+        next_offset?: number;
+        commands: Array<{ command: string }>;
+      };
+      expect(payload.offset).toBe(5);
+      expect(payload.showing).toBe(5);
+      expect(payload.commands).toHaveLength(5);
+      expect(payload.count).toBeGreaterThan(10);
+      expect(payload.next_offset).toBe(10);
     });
   });
 
