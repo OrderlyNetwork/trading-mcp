@@ -117,6 +117,40 @@ export const RUN_TOOL: Tool = {
   },
 };
 
+export const LEVERAGE_GET_TOOL: Tool = {
+  name: 'leverage_get',
+  title: 'Read leverage',
+  description:
+    'Read the current leverage and margin mode for a symbol. Read-only; use leverage_set to change it.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      symbol: {
+        type: 'string',
+        description: 'Symbol, e.g. PERP_ETH_USDC.',
+      },
+      account: {
+        type: 'string',
+        description: 'Account ID. Defaults to ORDERLY_MCP_ACCOUNT, then the CLI default.',
+      },
+      network: {
+        type: 'string',
+        enum: ['mainnet', 'testnet'],
+        description: 'Network override for this call.',
+      },
+    },
+    required: ['symbol'],
+    additionalProperties: false,
+  },
+  annotations: {
+    ...META_ANNOTATIONS,
+    title: 'Read leverage',
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+  },
+};
+
 interface ArgSummary {
   name: string;
   kind: 'positional' | 'flag';
@@ -276,6 +310,46 @@ export async function executeCommand(
       )
     : await runOrderly(deps.location.bin, built.argv, deps.config);
   debugLog(deps.config, `exit=${result.exitCode} duration=${result.durationMs}ms`);
+  return formatRunResult(result, deps.config);
+}
+
+export async function handleLeverageGet(
+  input: Record<string, unknown>,
+  commands: SchemaCommand[],
+  deps: ToolDeps
+): Promise<ToolResult> {
+  const symbol = input.symbol;
+  if (typeof symbol !== 'string' || symbol.trim().length === 0) {
+    return textResult('Missing required argument "symbol".', true);
+  }
+  if (input.value !== undefined) {
+    return textResult(
+      'leverage_get only reads leverage. Use leverage_set with value to change it.',
+      true
+    );
+  }
+  if (input.account !== undefined && typeof input.account !== 'string') {
+    return textResult('Argument "account" must be a string.', true);
+  }
+
+  const requestedNetwork = normalizeRequestedNetwork(input.network);
+  if (requestedNetwork && typeof requestedNetwork === 'object') {
+    return textResult(requestedNetwork.error, true);
+  }
+  const network = resolveNetwork(deps.config, requestedNetwork);
+
+  if (!findCommand(commands, 'leverage')) {
+    return textResult('The installed CLI has no leverage command.', true);
+  }
+
+  const argv = ['leverage', `--network=${network}`];
+  if (typeof input.account === 'string' && input.account.length > 0) {
+    argv.push(`--account=${input.account}`);
+  }
+  argv.push('--', symbol);
+
+  debugLog(deps.config, `run ${deps.location.bin} ${argv.join(' ')}`);
+  const result = await runOrderly(deps.location.bin, argv, deps.config);
   return formatRunResult(result, deps.config);
 }
 

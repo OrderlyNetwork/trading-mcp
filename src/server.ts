@@ -10,9 +10,11 @@ import type { ServerContext } from './context.js';
 import { buildTools } from './tools/generate.js';
 import {
   COMMANDS_TOOL,
+  LEVERAGE_GET_TOOL,
   RUN_TOOL,
   executeCommand,
   handleCommands,
+  handleLeverageGet,
   handleRun,
 } from './tools/manual.js';
 import { STATUS_TOOL_NAME, handleStatus, statusTool } from './tools/status.js';
@@ -54,7 +56,12 @@ export function createMcpServer(ctx: ServerContext): Server {
     generated.map((entry) => [entry.tool.name, entry] as const)
   );
   const tools: Tool[] = ctx.discovery.location
-    ? [...generated.map((entry) => entry.tool), COMMANDS_TOOL, RUN_TOOL]
+    ? [
+        ...generated.map((entry) => entry.tool),
+        LEVERAGE_GET_TOOL,
+        COMMANDS_TOOL,
+        RUN_TOOL,
+      ]
     : [statusTool()];
 
   const server = new Server(
@@ -93,6 +100,14 @@ export function createMcpServer(ctx: ServerContext): Server {
         if (name === RUN_TOOL.name) {
           return asCallToolResult(
             await handleRun(args, ctx.commands, {
+              location: ctx.discovery.location,
+              config: ctx.config,
+            })
+          );
+        }
+        if (name === LEVERAGE_GET_TOOL.name) {
+          return asCallToolResult(
+            await handleLeverageGet(args, ctx.commands, {
               location: ctx.discovery.location,
               config: ctx.config,
             })

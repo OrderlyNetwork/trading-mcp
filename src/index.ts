@@ -8,6 +8,7 @@ import { runDoctor } from './doctor.js';
 import { createMcpServer } from './server.js';
 import type { ServerContext } from './context.js';
 import { buildTools } from './tools/generate.js';
+import { LEVERAGE_GET_TOOL } from './tools/manual.js';
 import { APP_VERSION } from './version.js';
 
 // Piping output (e.g. `doctor | head`) closes stdout early.
@@ -43,19 +44,25 @@ async function printTools(config: ServerConfig): Promise<number> {
   }
   const commands = flattenCommands(discovery.location.schema);
   const tools = buildTools(commands, config);
+  const allTools = [
+    ...tools.map((entry) => ({
+      name: entry.tool.name,
+      mutates: entry.command.mutates,
+      title: entry.tool.title,
+    })),
+    {
+      name: LEVERAGE_GET_TOOL.name,
+      mutates: false,
+      title: LEVERAGE_GET_TOOL.title,
+    },
+    { name: 'orderly_commands', mutates: false, title: 'Search the Orderly CLI commands' },
+    { name: 'orderly_run', mutates: true, title: 'Run an Orderly CLI command' },
+  ];
   const payload = {
     profile: config.profile,
     readOnly: config.readOnly,
-    count: tools.length + 2,
-    tools: [
-      ...tools.map((entry) => ({
-        name: entry.tool.name,
-        mutates: entry.command.mutates,
-        title: entry.tool.title,
-      })),
-      { name: 'orderly_commands', mutates: false, title: 'Search the Orderly CLI commands' },
-      { name: 'orderly_run', mutates: true, title: 'Run an Orderly CLI command' },
-    ],
+    count: allTools.length,
+    tools: allTools,
   };
   process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
   return 0;

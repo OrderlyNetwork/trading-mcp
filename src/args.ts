@@ -22,6 +22,7 @@ export type BuildArgvResult =
  */
 const REQUIRED_OVERRIDES: Record<string, readonly string[]> = {
   'order-place': ['symbol', 'side', 'quantity'],
+  leverage: ['symbol', 'value'],
 };
 
 /** Required argument parameter names, including CLI quirks the manifest misses. */

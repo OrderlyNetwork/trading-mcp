@@ -35,12 +35,15 @@ async function withClient<T>(
 }
 
 describe('MCP protocol', () => {
-  it('registers the 14-tool core surface', async () => {
+  it('registers the 15-tool core surface', async () => {
     await withClient({}, async (client) => {
       const { tools } = await client.listTools();
       const names = tools.map((tool) => tool.name);
-      expect(names).toHaveLength(14);
+      expect(names).toHaveLength(15);
       expect(names).toContain('order_place');
+      expect(names).toContain('leverage_get');
+      expect(names).toContain('leverage_set');
+      expect(names).not.toContain('leverage');
       expect(names).toContain('orderly_commands');
       expect(names).toContain('orderly_run');
       expect(names).not.toContain('wallet_import');
@@ -76,6 +79,23 @@ describe('MCP protocol', () => {
         'BUY',
         'LIMIT',
         '0.01',
+      ]);
+    });
+  });
+
+  it('reads leverage without passing a mutation value', async () => {
+    await withClient({}, async (client) => {
+      const result = await client.callTool({
+        name: 'leverage_get',
+        arguments: { symbol: 'PERP_ETH_USDC', account: '0xabc' },
+      });
+      const payload = JSON.parse(textOf(result)) as { argv: string[] };
+      expect(payload.argv).toEqual([
+        'leverage',
+        '--network=testnet',
+        '--account=0xabc',
+        '--',
+        'PERP_ETH_USDC',
       ]);
     });
   });
@@ -214,6 +234,8 @@ describe('MCP protocol', () => {
       const { tools } = await client.listTools();
       const names = tools.map((tool) => tool.name);
       expect(names).toContain('market_price');
+      expect(names).toContain('leverage_get');
+      expect(names).not.toContain('leverage_set');
       expect(names).not.toContain('order_place');
 
       const result = await client.callTool({

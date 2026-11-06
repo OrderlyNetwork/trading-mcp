@@ -66,9 +66,9 @@ export const TOOL_METADATA: Record<string, ToolMetadata> = {
       'Close a position with a reduce-only MARKET order. Omit quantity to close the full position; pass quantity for a partial close. Perpetual futures only — use predict_close for Orderly Predict. Preview with dry_run=true.',
   },
   leverage: {
-    title: 'Read or set leverage',
+    title: 'Set leverage',
     description:
-      'Read or set leverage for a symbol. Omit value to read the current leverage; pass value to set it. Preview a change with dry_run=true.',
+      'Set leverage for a symbol. value is required. Preview a change with dry_run=true. Use leverage_get to read the current leverage without mutating.',
   },
   'predict-buy': {
     title: 'Buy Predict shares',

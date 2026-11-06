@@ -170,6 +170,17 @@ describe('buildArgv', () => {
     );
   });
 
+  it('requires a value for the leverage setter', () => {
+    const result = buildArgv(
+      command('leverage'),
+      { symbol: 'PERP_ETH_USDC' },
+      testnet
+    );
+    expect('error' in result && result.error).toContain(
+      'Missing required argument "value"'
+    );
+  });
+
   it('requires quantity even though the manifest marks it optional', () => {
     const result = buildArgv(
       command('order-place'),

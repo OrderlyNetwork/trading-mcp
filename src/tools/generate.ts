@@ -26,6 +26,8 @@ function firstLine(value: string | null | undefined): string {
 }
 
 function toolName(cmd: SchemaCommand): string {
+  // leverage is split into leverage_get (manual, read-only) and this setter.
+  if (cmd.path === 'leverage') return 'leverage_set';
   return cmd.path.replace(/-/g, '_');
 }
 
