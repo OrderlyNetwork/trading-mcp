@@ -1,5 +1,9 @@
 name: release
 
+# Publishing requires an NPM_TOKEN automation token for an account that can
+# publish to the @orderly.network scope. The token check below fails fast when
+# the secret is missing or invalid.
+
 on:
   push:
     tags:
@@ -44,6 +48,10 @@ jobs:
             exit 1
           fi
           echo "Releasing $VERSION"
+      - name: Verify npm authentication
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
