@@ -72,16 +72,19 @@ function coerceBoolean(value: unknown): boolean | null {
   return null;
 }
 
-/** Enum values the CLI accepts but the manifest does not list (short forms). */
-const ENUM_EXTENSIONS: Record<string, Record<string, readonly string[]>> = {
-  'order-place': { side: ['BUY', 'SELL', 'BID', 'ASK'] },
+/** Enum values exposed by the MCP, including CLI short forms and exclusions. */
+const ENUM_OVERRIDES: Record<string, Record<string, readonly string[]>> = {
+  'order-place': {
+    side: ['BUY', 'SELL', 'BID', 'ASK'],
+    type: ['LIMIT', 'MARKET', 'IOC', 'FOK', 'POST_ONLY'],
+  },
 };
 
 export function enumValuesFor(
   cmdPath: string,
   arg: SchemaArg
 ): readonly string[] {
-  return ENUM_EXTENSIONS[cmdPath]?.[argParamName(arg)] ?? arg.possibleValues;
+  return ENUM_OVERRIDES[cmdPath]?.[argParamName(arg)] ?? arg.possibleValues;
 }
 
 function coerceScalar(
@@ -186,6 +189,46 @@ export function buildArgv(
         error: `Missing required argument "${name}" for "orderly ${cmd.path}".\nUsage: ${usageLine(
           cmd
         )}\nAvailable arguments: ${availableParams(cmd, bindings)}.`,
+      };
+    }
+  }
+
+  // order-place has two forms: <symbol> <side> <type> <quantity> and the
+  // shorter <symbol> BID|ASK <quantity> market form. Translate the short form
+  // to an explicit MARKET order so the API never receives order_type=BID/ASK.
+  if (cmd.path === 'order-place') {
+    const side = provided.get('side');
+    if (typeof side === 'string') {
+      const short = side.toUpperCase();
+      if (short === 'BID' || short === 'ASK') {
+        if (provided.has('type')) {
+          return {
+            error: `Argument "type" must be omitted when side is ${short}; it is a short form for a market ${
+              short === 'BID' ? 'buy' : 'sell'
+            }.`,
+          };
+        }
+        if (provided.has('price')) {
+          return {
+            error: `Argument "price" must be omitted when side is ${short}; it is a market order short form. Use side=BUY or SELL with type=LIMIT for a priced order.`,
+          };
+        }
+        provided.set('side', short === 'BID' ? 'BUY' : 'SELL');
+        provided.set('type', 'MARKET');
+      } else if (short === 'BUY' || short === 'SELL') {
+        if (!provided.has('type')) {
+          return {
+            error: `Missing required argument "type" for "orderly order-place". Use LIMIT, MARKET, IOC, FOK or POST_ONLY, or use side=BID/ASK for a market order.`,
+          };
+        }
+      }
+    }
+
+    const type = provided.get('type');
+    if (typeof type === 'string' && ['BID', 'ASK'].includes(type.toUpperCase())) {
+      return {
+        error:
+          'Argument "type" must be LIMIT, MARKET, IOC, FOK or POST_ONLY. Use side=BID/ASK for the market short form.',
       };
     }
   }

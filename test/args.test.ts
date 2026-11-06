@@ -35,23 +35,98 @@ describe('buildArgv', () => {
     });
   });
 
-  it('supports the BID/ASK short form with three positionals', () => {
-    const result = buildArgv(
+  it('translates the BID/ASK short form to an explicit market order', () => {
+    const bid = buildArgv(
       command('order-place'),
       { symbol: 'PERP_ETH_USDC', side: 'BID', quantity: 0.01, dry_run: true },
       testnet
     );
-    expect(result).toEqual({
+    expect(bid).toEqual({
       argv: [
         'order-place',
         '--network=testnet',
         '--dry-run',
         '--',
         'PERP_ETH_USDC',
-        'BID',
+        'BUY',
+        'MARKET',
         '0.01',
       ],
     });
+
+    const ask = buildArgv(
+      command('order-place'),
+      { symbol: 'PERP_ETH_USDC', side: 'ask', quantity: 0.02 },
+      testnet
+    );
+    expect(ask).toEqual({
+      argv: [
+        'order-place',
+        '--network=testnet',
+        '--',
+        'PERP_ETH_USDC',
+        'SELL',
+        'MARKET',
+        '0.02',
+      ],
+    });
+  });
+
+  it('requires an explicit type for BUY/SELL orders', () => {
+    const result = buildArgv(
+      command('order-place'),
+      { symbol: 'PERP_ETH_USDC', side: 'BUY', quantity: 0.01 },
+      testnet
+    );
+    expect('error' in result && result.error).toContain(
+      'Missing required argument "type"'
+    );
+  });
+
+  it('rejects type or price with the BID/ASK short form', () => {
+    const withType = buildArgv(
+      command('order-place'),
+      {
+        symbol: 'PERP_ETH_USDC',
+        side: 'BID',
+        type: 'MARKET',
+        quantity: 0.01,
+      },
+      testnet
+    );
+    expect('error' in withType && withType.error).toContain(
+      'must be omitted when side is BID'
+    );
+
+    const withPrice = buildArgv(
+      command('order-place'),
+      {
+        symbol: 'PERP_ETH_USDC',
+        side: 'ASK',
+        quantity: 0.01,
+        price: 2100,
+      },
+      testnet
+    );
+    expect('error' in withPrice && withPrice.error).toContain(
+      'must be omitted when side is ASK'
+    );
+  });
+
+  it('rejects BID/ASK as an explicit order type', () => {
+    const result = buildArgv(
+      command('order-place'),
+      {
+        symbol: 'PERP_ETH_USDC',
+        side: 'BUY',
+        type: 'BID',
+        quantity: 0.01,
+      },
+      testnet
+    );
+    expect('error' in result && result.error).toContain(
+      'must be LIMIT, MARKET, IOC, FOK or POST_ONLY'
+    );
   });
 
   it('requires quantity even though the manifest marks it optional', () => {
